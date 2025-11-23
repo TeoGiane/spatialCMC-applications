@@ -1,0 +1,6 @@
+# Files to ignore
+.cook
+
+# Folder to ignore
+__pycache__/
+ONGOING/
