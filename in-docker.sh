@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run --rm -it -v `pwd`:/workdir spatialcmc:latest $@
+docker run --rm -it -v `pwd`:/workdir spatialcmc $@
