@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     r-base-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
+WORKDIR /workdir
+
 # Install R packages
 COPY requirements.R .
 RUN Rscript requirements.R
@@ -36,8 +39,5 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download and install (R)spatialCMC
-RUN git clone https://github.com/TeoGiane/spatialCMC.git
-RUN cd spatialCMC/R && ./install_rspatialcmc.sh
-
-# Set working directory
-WORKDIR /workdir
+RUN git clone https://github.com/TeoGiane/spatialCMC.git /spatialCMC
+RUN cd /spatialCMC/R && ./install_rspatialcmc.sh
