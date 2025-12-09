@@ -1,0 +1,10 @@
+# Files to ignore
+.Rhistory
+.RData
+*.pdf
+
+# Folders to ignore
+input/
+output/
+raw/
+plots/
