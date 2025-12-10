@@ -65,8 +65,9 @@ def create_run_sampler_task(algo_type: str, hier_prior: str, mix_prior: str) -> 
 algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 40 burnin: 10 init_num_clusters: 5'
 algo_types = ["MCMC", "CMC"]
 hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
-mix_priors = ["fixed_value { totalmass: 0.001 lambda: 0.35 }", "fixed_value { totalmass: 0.01 lambda: 0.35 }",
-              "fixed_value { totalmass: 0.1 lambda: 0.35 }", "fixed_value { totalmass: 1.0 lambda: 0.35 }"]
+mix_priors = ["fixed_value { totalmass: 1.0 lambda: 0.35 }"]
+# mix_priors = ["fixed_value { totalmass: 0.001 lambda: 0.35 }", "fixed_value { totalmass: 0.01 lambda: 0.35 }",
+#               "fixed_value { totalmass: 0.1 lambda: 0.35 }", "fixed_value { totalmass: 1.0 lambda: 0.35 }"]
 with create_group(name("run")):
     for algo_type in algo_types:
         for hier_prior in hier_priors:
