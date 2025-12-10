@@ -1,13 +1,13 @@
-# # ---- COVID DATA - Generate Processed Dataset ---- # #
+# # ---- COVID DATA - GENERATE PROCESSED DATASET ---- # #
 
 # Command line input options via argparser
 suppressMessages(library("argparser"))
-opt_parser <- arg_parser(name = "generate_data", hide.opts = TRUE,
+opt_parser <- arg_parser(name = "generate_shapefiles", hide.opts = TRUE,
                          description = "Generate processed COVID-19 dataset from raw data")
 opt_parser <- add_argument(opt_parser, arg = "--raw-data-dir", type = "character",
-                           help = "Directory containing raw data files", default = "raw")
+                           help = "Relative path to the directory containing raw data files", default = "raw")
 opt_parser <- add_argument(opt_parser, arg = "--dest-dir", type = "character", default = "input",
-                           help = "Directory to save generated datasets")
+                           help = "Relative path to the directory to save generated datasets")
 extra_args <- parse_args(opt_parser)
 
 
@@ -26,14 +26,16 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 cat("Setting working directory to: ", getwd(), "\n")
 
 # Check if directories exist
-if (!dir.exists(extra_args$raw_data_dir)) {
-  stop(paste("Raw data directory", extra_args$raw_data_dir, "does not exist!"))
+raw_data_dir <- file.path(getwd(), extra_args$raw_data_dir)
+if (!dir.exists(raw_data_dir)) {
+  stop(paste("Raw data directory", raw_data_dir, "does not exist!"))
 }
 
 # Create destination directory if it doesn't exist
-if (!dir.exists(extra_args$dest_dir)) {
-  dir.create(extra_args$dest_dir, recursive = TRUE)
-  cat("Created destination directory: ", extra_args$dest_dir, "\n")
+dest_dir <- file.path(getwd(), extra_args$dest_dir)
+if (!dir.exists(dest_dir)) {
+  dir.create(dest_dir, recursive = TRUE)
+  cat("Created destination directory: ", dest_dir, "\n")
 }
 
 
@@ -46,17 +48,17 @@ suppressMessages(library("sf"))
 
 # Import raw shapefiles
 cat("Importing shapefiles... ")
-reg_sf <- read_sf(file.path(extra_args$raw_data_dir,"Limiti01012020","Reg01012020","Reg01012020_WGS84.shp"))
-prov_sf <- read_sf(file.path(extra_args$raw_data_dir,"Limiti01012020","ProvCM01012020","ProvCM01012020_WGS84.shp"))
-mun_sf <- read_sf(file.path(extra_args$raw_data_dir,"Limiti01012020","Com01012020","Com01012020_WGS84.shp"))
+reg_sf <- st_read(file.path(raw_data_dir,"Limiti01012020","Reg01012020","Reg01012020_WGS84.shp"), quiet = TRUE) %>% st_make_valid() %>% st_cast()
+prov_sf <- st_read(file.path(raw_data_dir,"Limiti01012020","ProvCM01012020","ProvCM01012020_WGS84.shp"), quiet = TRUE) %>% st_make_valid() %>% st_cast()
+mun_sf <- st_read(file.path(raw_data_dir,"Limiti01012020","Com01012020","Com01012020_WGS84.shp"), quiet = TRUE) %>% st_make_valid()
 cat("Done!\n")
 
 # Import raw data from all sources
 cat("Importing raw data... ")
-mortality_df_raw <- read.csv(file.path(extra_args$raw_data_dir, "comuni_giornaliero_31dicembre.csv"), encoding = "latin1")
-population_df_raw <- read.csv(file.path(extra_args$raw_data_dir,"POSAS_2021_it_Comuni.csv"), sep = ";", skip = 1)
-income_df_names <- names(read.csv(file.path(extra_args$raw_data_dir,"Redditi_e_principali_variabili_IRPEF_su_base_comunale_CSV_2020.csv"), sep=";", header = T, nrows = 0))
-income_df_raw <- read.csv(file.path(extra_args$raw_data_dir ,"Redditi_e_principali_variabili_IRPEF_su_base_comunale_CSV_2020.csv"), sep = ";", skip = 1, header = F) %>%
+mortality_df_raw <- read.csv(file.path(raw_data_dir, "comuni_giornaliero_31dicembre.csv"), encoding = "latin1")
+population_df_raw <- read.csv(file.path(raw_data_dir,"POSAS_2021_it_Comuni.csv"), sep = ";", skip = 1)
+income_df_names <- names(read.csv(file.path(raw_data_dir,"Redditi_e_principali_variabili_IRPEF_su_base_comunale_CSV_2020.csv"), sep=";", header = T, nrows = 0))
+income_df_raw <- read.csv(file.path(raw_data_dir ,"Redditi_e_principali_variabili_IRPEF_su_base_comunale_CSV_2020.csv"), sep = ";", skip = 1, header = F) %>%
   select(-c("V51","V52")) %>% `colnames<-`(income_df_names) %>% filter(Regione != "Mancante/errata")
 rm(income_df_names)
 cat("Done!\n")
@@ -127,11 +129,20 @@ real_data_sf[to_fill, "NAME_PROV"] <- c("Cuneo","Vercelli")
 
 # Remove data for which ET == 0
 real_data_sf <- real_data_sf[which(real_data_sf$ET != 0),]
+real_data_sf <- real_data_sf %>% st_make_valid() %>% st_cast()
 
-# Save final dataset for analysis
-dir.create(file.path(extra_args$dest_dir), recursive = T, showWarnings = F)
-dir.create(file.path(extra_args$dest_dir, "covid_data_clean"), recursive = T, showWarnings = F)
-st_write(real_data_sf, file.path(extra_args$dest_dir, "covid_data_clean", "covid_data_clean.shp"), delete_layer = TRUE)
-cat("Processed COVID-19 dataset saved to", file.path(extra_args$dest_dir, "covid_data_clean"), "\n") # log
+# Create proper output directories
+dir.create(file.path(dest_dir), recursive = T, showWarnings = F)
+dir.create(file.path(dest_dir, "covid_data_clean"), recursive = T, showWarnings = F)
+dir.create(file.path(dest_dir, "regions"), recursive = T, showWarnings = F)
+dir.create(file.path(dest_dir, "provinces"), recursive = T, showWarnings = F)
+
+# Save shapefiles
+st_write(real_data_sf, file.path(dest_dir, "covid_data_clean", "covid_data_clean.shp"), delete_layer = TRUE, quiet = TRUE)
+cat("Processed COVID-19 dataset saved to", file.path(dest_dir, "covid_data_clean"), "\n") # log
+st_write(reg_sf, file.path(dest_dir, "regions", "regions.shp"), delete_layer = TRUE, quiet = TRUE)
+cat("Regions shapefile saved to", file.path(dest_dir, "regions"), "\n") # log
+st_write(prov_sf, file.path(dest_dir, "provinces", "provinces.shp"), delete_layer = TRUE, quiet = TRUE)
+cat("Provinces shapefile saved to", file.path(dest_dir, "provinces"), "\n") # log
 
 # # ---- END OF SCRIPT ---- # #
