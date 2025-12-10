@@ -102,11 +102,12 @@ plt_nclust <- ggplot(data = data.frame(prop.table(table(Nclust))), aes(x=Nclust,
   xlab("N° of Clusters") + ylab("Post. Prob.")
 pdf(file.path(out_dir, "plt_nclust.pdf"), height = 4, width = 4); print(plt_nclust); dev.off()
 
-# Plot - Posterior similarity matrix
-psm <- salso::psm(cluster_allocs)
+# Plot - Posterior similarity matrix (sorted by best cluster estimate)
+best_arrangment <- unlist(sapply(unique(mun_sf$best_clust), function(c) { which(mun_sf$best_clust == c) }))
+psm <- salso::psm(cluster_allocs[, best_arrangment])
 plt_psm <- ggplot(data = reshape2::melt(psm, c("x", "y"))) +
   geom_tile(aes(x=x, y=y, fill=value)) +
-  scale_fill_gradient("Post. Prob. of Co-Clustering", low='steelblue', high='darkorange',
+  scale_fill_gradient("Post. Prob. of Co-Clustering", low='white', high='darkorange',
                       guide = guide_colorbar(title.position = "bottom", title.hjust = 0.5,
                                              direction = "horizontal", barwidth = unit(3,"in"))) +
   geom_rect(xmin=0.5, ymin=0.5, xmax=Ndata+0.5, ymax=Ndata+0.5, fill=NA, color='gray25', linewidth=0.7) +
