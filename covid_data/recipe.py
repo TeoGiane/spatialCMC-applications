@@ -35,12 +35,12 @@ download_data_targets = [os.path.join(workdir, "raw", 'comuni_giornaliero_31dice
 create_task(name("download_data"), action = download_data, targets = download_data_targets)
 
 # Define generate data task
-generate_shapefile_action = ['Rscript', os.path.join(workdir, 'src', 'generate_shapefile.R'),
-                        '--raw-data-dir', 'raw',
-                        '--dest-dir', 'input']
+generate_shapefile_action = ['Rscript', os.path.join(workdir, 'src/generate_shapefiles.R')] + \
+    ['--raw-data-dir', 'raw'] + \
+    ['--dest-dir', 'input']
 generate_shapefile_task_deps = [name("download_data")]
 generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_clean', 'covid_data_clean.shp')]
-create_task(name("generate_shapefile"), action = generate_shapefile_action,
+create_task(name("generate_shapefiles"), action = generate_shapefile_action,
             task_dependencies = generate_shapefile_task_deps, targets = generate_shapefile_targets)
 
 # Define create_run_sampler_task function
@@ -54,7 +54,7 @@ def create_run_sampler_task(algo_type: str, hier_prior: str, mix_prior: str) -> 
         ["--mix-prior", mix_prior] + \
         ["--algo-params", algo_params] + \
         ["--output-file", output_file]
-    run_sampler_task_dependencies = [name("generate_shapefile")]
+    run_sampler_task_dependencies = [name("generate_shapefiles")]
     run_sampler_targets = [os.path.join(workdir, output_file)]
     if algo_type == "MCMC":
         run_sampler_action += ["--use-mcmc"]
@@ -65,9 +65,32 @@ def create_run_sampler_task(algo_type: str, hier_prior: str, mix_prior: str) -> 
 algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 40 burnin: 10 init_num_clusters: 5'
 algo_types = ["MCMC", "CMC"]
 hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
-mix_priors = ["fixed_value { totalmass: 1.0 lambda: 0.35 }"]
+mix_priors = ["fixed_value { totalmass: 0.001 lambda: 0.35 }", "fixed_value { totalmass: 0.01 lambda: 0.35 }",
+              "fixed_value { totalmass: 0.1 lambda: 0.35 }", "fixed_value { totalmass: 1.0 lambda: 0.35 }"]
 with create_group(name("run")):
     for algo_type in algo_types:
         for hier_prior in hier_priors:
             for mix_prior in mix_priors:
                     create_run_sampler_task(algo_type, hier_prior, mix_prior)
+
+
+# Define create_generate_plots_task function
+def create_generate_plots_task(algo_type: str, hier_prior: str, mix_prior: str) -> Task:
+    filename = "mcmc_chain" if algo_type == "MCMC" else "cmc_chain"
+    sim_path = create_output_path(hier_prior, mix_prior)
+    sim_file = f"output/{sim_path}/{filename}.dat"
+    generate_plots_action = ["Rscript", os.path.join(workdir,"src/generate_plots.R")] + \
+        ["--data-file", 'input/covid_data_clean/covid_data_clean.shp'] + \
+        ["--shard-geom-file", 'input/regions/regions.shp'] + \
+        ["--sim-file", sim_file] + \
+        ["--output-dir", f"plots/{sim_path}/{algo_type.lower()}"]
+    generate_plots_task_dependencies = [f"_{name(f"run-{sim_path}-{filename}")}"]
+    return create_task(f"_{name(f"generate-plots-{sim_path}-{filename}")}", action=generate_plots_action,
+                       task_dependencies=generate_plots_task_dependencies)
+
+# Define generate_plots task group
+with create_group(name("generate_plots")):
+    for algo_type in algo_types:
+        for hier_prior in hier_priors:
+            for mix_prior in mix_priors:
+                create_generate_plots_task(algo_type, hier_prior, mix_prior)
