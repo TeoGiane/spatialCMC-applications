@@ -1,4 +1,4 @@
-# # ---- POISSON MODEL ON LATTICE - RUN SAMPLER ---- # #
+# # ---- COVID DATA - RUN SAMPLER ---- # #
 
 # Command line input options via argparser
 suppressMessages(library("argparser"))
@@ -56,8 +56,7 @@ suppressMessages(library("RspatialCMC"))
 suppressMessages(library("sf"))
 
 # Load shapefile
-covid_sf <- st_read(extra_args$input_file)
-# covid_sf <- covid_sf[which(covid_sf$ET != 0),]
+covid_sf <- st_read(extra_args$input_file, quiet = TRUE)
 cat(sprintf("Data loaded from shapefile: %s\n", extra_args$input_file)) # Log
 
 # Choose if MCMC or CMC
