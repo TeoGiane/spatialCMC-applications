@@ -111,26 +111,31 @@ plt_nclust <- ggplot(data = data.frame(prop.table(table(Nclust))), aes(x=Nclust,
   geom_bar(stat = "identity", color=NA, linewidth=0, fill='white') +
   geom_bar(stat = "identity", color='steelblue', alpha=0.4, linewidth=0.7, fill='steelblue') +
   xlab("N° of Clusters") + ylab("Post. Prob.")
+# Save
+cat("Saving plt_nclust.tiff... ") # Log
 ggsave(file.path(out_dir, "plt_nclust.tiff"), plot = plt_nclust,
        device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
+cat("Done!\n") # Log
 
 # Plot - Posterior similarity matrix (sorted by best cluster estimate)
-best_arrangment <- unlist(sapply(unique(covid_sf$best_clust), function(c) { which(covid_sf$best_clust == c) }))
-psm <- salso::psm(cluster_allocs[, best_arrangment])
-plt_psm <- ggplot(data = reshape2::melt(psm, c("x", "y"))) +
-  geom_tile(aes(x=x, y=y, fill=value)) +
-  scale_fill_gradient("Post. Prob. of Co-Clustering", low='white', high='darkorange',
-                      guide = guide_colorbar(title.position = "bottom", title.hjust = 0.5,
-                                             direction = "horizontal", barwidth = unit(3,"in"))) +
-  geom_rect(xmin=0.5, ymin=0.5, xmax=Ndata+0.5, ymax=Ndata+0.5, fill=NA, color='gray25', linewidth=0.7) +
-  theme_void() + theme(legend.position = "bottom") + coord_equal()
-ggsave(file.path(out_dir, "plt_psm.tiff"), plot = plt_psm,
-       device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
+# best_arrangment <- unlist(sapply(unique(covid_sf$best_clust), function(c) { which(covid_sf$best_clust == c) }))
+# psm <- salso::psm(cluster_allocs[, best_arrangment])
+# psm_df <- reshape2::melt(psm, c("x", "y"))
+# plt_psm <- ggplot(data = psm_df) +
+#   geom_tile(aes(x=x, y=y, fill=value)) +
+#   scale_fill_gradient("Post. Prob. of Co-Clustering", low='white', high='darkorange',
+#                       guide = guide_colorbar(title.position = "bottom", title.hjust = 0.5,
+#                                              direction = "horizontal", barwidth = unit(3,"in"))) +
+#   geom_rect(xmin=0.5, ymin=0.5, xmax=Ndata+0.5, ymax=Ndata+0.5, fill=NA, color='gray25', linewidth=0.7) +
+#   theme_void() + theme(legend.position = "bottom") + coord_equal()
+# cat("Saving plt_psm.tiff... ") # Log
+# ggsave(file.path(out_dir, "plt_psm.tiff"), plot = plt_psm,
+#        device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
+# cat("Done!\n") # Log
 
 # Plot - Best cluster on the geometry
 plt_best_clust <- ggplot() +
   geom_sf(data = covid_sf, aes(fill=best_clust), color='gray25', alpha=0.75, linewidth=0.1) +
-  # scale_fill_manual(values = c("1" = "steelblue", "2" = "darkorange")) +
   guides(fill = guide_legend(title = "Cluster", title.position = "bottom", title.hjust=0.5,
                              label.position = "bottom")) +
   theme_void() + theme(legend.position = "none")
@@ -138,9 +143,10 @@ if(run_cmc){
   plt_best_clust <- plt_best_clust +
     geom_sf(data = shard_geom, color='darkred', fill=NA)
 }
+cat("Saving plt_best_clust.tiff... ") # Log
 ggsave(file.path(out_dir, "plt_best_clust.tiff"), plot = plt_best_clust,
        device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
-# pdf(file.path(out_dir, "plt_best_clust.pdf"), height = 4, width = 4); print(plt_best_clust); dev.off()
+cat("Done!\n") # Log
 
 cat(sprintf("All plots have been saved to: %s\n", out_dir)) # Log
 
