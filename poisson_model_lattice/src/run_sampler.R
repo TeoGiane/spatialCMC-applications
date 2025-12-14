@@ -105,11 +105,11 @@ if(is.null(algo_params)){
 if(!run_mcmc) {
   CMC_fit <- run_cmc(mun_sf$data, st_geometry(mun_sf), mun_sf$province_idx,
                      algo_params, "PoissonGamma", hier_prior, "sPP", mix_prior,
-                     covariates = as.matrix(mun_sf$offsets))
+                     covariates = as.matrix(mun_sf$offsets), out_dir = dirname(out_file))
 } else {
   MCMC_fit <- run_mcmc(mun_sf$data, st_geometry(mun_sf), algo_params,
                        "PoissonGamma", hier_prior, "sPP", mix_prior,
-                       covariates = as.matrix(mun_sf$offsets))
+                       covariates = as.matrix(mun_sf$offsets), out_dir = dirname(out_file))
 }
 
 # Save output to file
