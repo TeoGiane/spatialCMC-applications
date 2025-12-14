@@ -2,11 +2,11 @@
 
 # PBS Settings
 #PBS -S /bin/bash
-#PBS -l select=1:ncpus=24:mem=64gb
+#PBS -l select=1:ncpus=96:mem=128gb
 #PBS -l walltime=240:00:00
-#PBS -N spatialCMC-covid_data:run
-#PBS -o log/spatialCMC-covid_data:run.out
-#PBS -e log/spatialCMC-covid_data:run.err
+#PBS -N spatialCMC-covid_data-run
+#PBS -o log/spatialCMC-covid_data-run.out
+#PBS -e log/spatialCMC-covid_data-run.err
 
 # Set current working directory
 cd ${PBS_O_WORKDIR}
@@ -23,4 +23,4 @@ in-apptainer () {
 export -f in-apptainer
 
 # Execution in containerized environment
-in-apptainer cook exec -j 24 covid_data:run &> log/covid_data:run.log
+in-apptainer cook exec covid_data:run &> log/covid_data:run.log
