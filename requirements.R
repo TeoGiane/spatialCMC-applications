@@ -6,6 +6,7 @@ package_deps <- c("argparser",
                   "devtools",
                   "dplyr",
                   "ggplot2",
+                  "lubridate",
                   "ggmap",
                   "gridExtra",
                   "reshape2",
@@ -14,6 +15,9 @@ package_deps <- c("argparser",
                   "sf",
                   "spdep")
 
-# Install packages from CRAN (in parallel)
-num_cores <- parallel::detectCores() - 1
-install.packages(package_deps, repos = repos, Ncpus = num_cores)
+# Install missing packages from CRAN (in parallel)
+new_packages <- package_deps[!(package_deps %in% installed.packages()[,"Package"])]
+if(length(new_packages)) {
+  num_cores <- parallel::detectCores() - 1
+  install.packages(new_packages, repos = repos, Ncpus = num_cores)
+}
