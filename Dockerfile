@@ -39,5 +39,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download and install (R)spatialCMC
+ARG REBUILD=false
 RUN git clone https://github.com/TeoGiane/spatialCMC.git /spatialCMC
 RUN cd /spatialCMC/R && ./install_rspatialcmc.sh
