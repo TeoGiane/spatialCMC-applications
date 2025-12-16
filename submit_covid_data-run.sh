@@ -23,4 +23,4 @@ in-apptainer () {
 export -f in-apptainer
 
 # Execution in containerized environment
-in-apptainer cook exec covid_data:run &> log/covid_data:run.log
+in-apptainer cook exec covid_data:run &> log/covid_data-run.log
