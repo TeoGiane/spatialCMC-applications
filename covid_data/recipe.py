@@ -49,7 +49,7 @@ def create_run_sampler_task(dataset: str, algo_type: str, hier_prior: str, mix_p
     output_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
     output_file = f"output/{output_path}/{filename}.dat"
     run_sampler_action = ["Rscript", os.path.join(workdir,"src/run_sampler.R")] + \
-        ["--input-file", f"input/covid_data_clean/covid_data_{dataset}.shp"] + \
+        ["--input-file", f"input/covid_data_{dataset}/covid_data_{dataset}.shp"] + \
         ["--hier-prior", hier_prior] + \
         ["--mix-prior", mix_prior] + \
         ["--algo-params", algo_params] + \
@@ -67,7 +67,7 @@ def create_generate_plots_task(dataset: str, algo_type: str, hier_prior: str, mi
     sim_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
     sim_file = f"output/{sim_path}/{filename}.dat"
     generate_plots_action = ["Rscript", os.path.join(workdir,"src/generate_plots.R")] + \
-        ["--data-file", f'input/covid_data_clean/covid_data_{dataset}.shp'] + \
+        ["--data-file", f'input/covid_data_{dataset}/covid_data_{dataset}.shp'] + \
         ["--shard-geom-file", 'input/regions/regions.shp'] + \
         ["--sim-file", sim_file] + \
         ["--output-dir", f"plots/{sim_path}/{algo_type.lower()}"]
