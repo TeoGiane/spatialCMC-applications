@@ -39,17 +39,17 @@ generate_shapefile_action = ['Rscript', os.path.join(workdir, 'src/generate_shap
     ['--raw-data-dir', 'raw'] + \
     ['--dest-dir', 'input']
 generate_shapefile_task_deps = [name("download_data")]
-generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_clean', 'covid_data_clean.shp')]
+generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_fullitaly', 'covid_data_fullitaly.shp')]
 create_task(name("generate_shapefiles"), action = generate_shapefile_action,
             task_dependencies = generate_shapefile_task_deps, targets = generate_shapefile_targets)
 
 # Define create_run_sampler_task function
-def create_run_sampler_task(algo_type: str, hier_prior: str, mix_prior: str) -> Task:
+def create_run_sampler_task(dataset: str, algo_type: str, hier_prior: str, mix_prior: str) -> Task:
     filename = "mcmc_chain" if algo_type == "MCMC" else "cmc_chain"
-    output_path = create_output_path(hier_prior, mix_prior)
+    output_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
     output_file = f"output/{output_path}/{filename}.dat"
     run_sampler_action = ["Rscript", os.path.join(workdir,"src/run_sampler.R")] + \
-        ["--input-file", f"input/covid_data_clean/covid_data_clean.shp"] + \
+        ["--input-file", f"input/covid_data_clean/covid_data_{dataset}.shp"] + \
         ["--hier-prior", hier_prior] + \
         ["--mix-prior", mix_prior] + \
         ["--algo-params", algo_params] + \
@@ -61,26 +61,13 @@ def create_run_sampler_task(algo_type: str, hier_prior: str, mix_prior: str) -> 
     return create_task(f"_{name(f"run-{output_path}-{filename}")}", action=run_sampler_action,
                        task_dependencies=run_sampler_task_dependencies, targets=run_sampler_targets)
 
-# Define run_sampler task group
-algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 4000 burnin: 1000 init_num_clusters: 5'
-algo_types = ["MCMC", "CMC"]
-hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
-mix_priors = ["fixed_value { totalmass: 0.001 lambda: 0.35 }", "fixed_value { totalmass: 0.01 lambda: 0.35 }",
-              "fixed_value { totalmass: 0.1 lambda: 0.35 }", "fixed_value { totalmass: 1.0 lambda: 0.35 }"]
-with create_group(name("run")):
-    for algo_type in algo_types:
-        for hier_prior in hier_priors:
-            for mix_prior in mix_priors:
-                    create_run_sampler_task(algo_type, hier_prior, mix_prior)
-
-
 # Define create_generate_plots_task function
-def create_generate_plots_task(algo_type: str, hier_prior: str, mix_prior: str) -> Task:
+def create_generate_plots_task(dataset: str, algo_type: str, hier_prior: str, mix_prior: str) -> Task:
     filename = "mcmc_chain" if algo_type == "MCMC" else "cmc_chain"
-    sim_path = create_output_path(hier_prior, mix_prior)
+    sim_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
     sim_file = f"output/{sim_path}/{filename}.dat"
     generate_plots_action = ["Rscript", os.path.join(workdir,"src/generate_plots.R")] + \
-        ["--data-file", 'input/covid_data_clean/covid_data_clean.shp'] + \
+        ["--data-file", f'input/covid_data_clean/covid_data_{dataset}.shp'] + \
         ["--shard-geom-file", 'input/regions/regions.shp'] + \
         ["--sim-file", sim_file] + \
         ["--output-dir", f"plots/{sim_path}/{algo_type.lower()}"]
@@ -88,9 +75,26 @@ def create_generate_plots_task(algo_type: str, hier_prior: str, mix_prior: str) 
     return create_task(f"_{name(f"generate-plots-{sim_path}-{filename}")}", action=generate_plots_action,
                        task_dependencies=generate_plots_task_dependencies)
 
+# Define run_sampler task group
+algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5000 burnin: 1000 init_num_clusters: 5'
+datasets = ["fullitaly", "northitaly"]
+algo_types = ["MCMC", "CMC"]
+hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
+mix_priors = ["fixed_value { totalmass: 0.001 lambda: 0.35 }", "fixed_value { totalmass: 0.01 lambda: 0.35 }",
+              "fixed_value { totalmass: 0.1 lambda: 0.35 }", "fixed_value { totalmass: 1.0 lambda: 0.35 }"]
+
+# Define run_sampler task group
+with create_group(name("run")):
+    for dataset in datasets:
+        for algo_type in algo_types:
+            for hier_prior in hier_priors:
+                for mix_prior in mix_priors:
+                    create_run_sampler_task(dataset,algo_type, hier_prior, mix_prior)
+
 # Define generate_plots task group
 with create_group(name("generate_plots")):
-    for algo_type in algo_types:
-        for hier_prior in hier_priors:
-            for mix_prior in mix_priors:
-                create_generate_plots_task(algo_type, hier_prior, mix_prior)
+    for dataset in datasets:
+        for algo_type in algo_types:
+            for hier_prior in hier_priors:
+                for mix_prior in mix_priors:
+                    create_generate_plots_task(dataset,algo_type, hier_prior, mix_prior)
