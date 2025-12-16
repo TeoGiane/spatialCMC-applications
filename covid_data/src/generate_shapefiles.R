@@ -131,15 +131,22 @@ real_data_sf[to_fill, "NAME_PROV"] <- c("Cuneo","Vercelli")
 real_data_sf <- real_data_sf[which(real_data_sf$ET != 0),]
 real_data_sf <- real_data_sf %>% st_make_valid() %>% st_cast()
 
+# Create reduced dataset for northern Italy only
+north_regions <- c("Valle d'Aosta", "Piemonte", "Liguria", "Lombardia", "Trentino-Alto Adige", "Veneto", "Friuli-Venezia Giulia", "Emilia-Romagna")
+north_data_sf <- real_data_sf %>% filter(NAME_REG %in% north_regions)
+
 # Create proper output directories
 dir.create(file.path(dest_dir), recursive = T, showWarnings = F)
-dir.create(file.path(dest_dir, "covid_data_clean"), recursive = T, showWarnings = F)
+dir.create(file.path(dest_dir, "covid_data_fullitaly"), recursive = T, showWarnings = F)
+dir.create(file.path(dest_dir, "covid_data_northitaly"), recursive = T, showWarnings = F)
 dir.create(file.path(dest_dir, "regions"), recursive = T, showWarnings = F)
 dir.create(file.path(dest_dir, "provinces"), recursive = T, showWarnings = F)
 
 # Save shapefiles
-st_write(real_data_sf, file.path(dest_dir, "covid_data_clean", "covid_data_clean.shp"), delete_layer = TRUE, quiet = TRUE)
-cat("Processed COVID-19 dataset saved to", file.path(dest_dir, "covid_data_clean"), "\n") # log
+st_write(real_data_sf, file.path(dest_dir, "covid_data_fullitaly", "covid_data_fullitaly.shp"), delete_layer = TRUE, quiet = TRUE)
+cat("Processed COVID-19 dataset for all of Italy saved to", file.path(dest_dir, "covid_data_fullitaly"), "\n") # log
+st_write(north_data_sf, file.path(dest_dir, "covid_data_northitaly", "covid_data_northitaly.shp"), delete_layer = TRUE, quiet = TRUE)
+cat("Processed COVID-19 dataset for northern Italy saved to", file.path(dest_dir, "covid_data_northitaly"), "\n") # log
 st_write(reg_sf, file.path(dest_dir, "regions", "regions.shp"), delete_layer = TRUE, quiet = TRUE)
 cat("Regions shapefile saved to", file.path(dest_dir, "regions"), "\n") # log
 st_write(prov_sf, file.path(dest_dir, "provinces", "provinces.shp"), delete_layer = TRUE, quiet = TRUE)
