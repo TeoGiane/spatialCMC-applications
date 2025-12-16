@@ -91,12 +91,10 @@ if(is.null(algo_params)){
 if(!run_mcmc) {
   shard_alloc <- covid_sf$COD_REG - 1L
   CMC_fit <- run_cmc(as.numeric(covid_sf$T_20), st_geometry(covid_sf), shard_alloc,
-                     algo_params, "PoissonGamma", hier_prior, "sPP", mix_prior,
-                     covariates = as.matrix(covid_sf$ET), out_dir = dirname(out_file))
+                     algo_params, "PoissonGamma", hier_prior, "sPP", mix_prior, covariates = as.matrix(covid_sf$ET))
 } else {
   MCMC_fit <- run_mcmc(as.numeric(covid_sf$T_20), st_geometry(covid_sf), algo_params,
-                       "PoissonGamma", hier_prior, "sPP", mix_prior,
-                       covariates = as.matrix(covid_sf$ET), out_dir = dirname(out_file))
+                       "PoissonGamma", hier_prior, "sPP", mix_prior, covariates = as.matrix(covid_sf$ET))
 }
 
 # Save output to file
