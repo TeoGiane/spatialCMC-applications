@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run --rm -it -v `pwd`:/workdir spatialcmc $@
+docker run --rm -it -v `pwd`:/workdir teogiane/spatialcmc $@
