@@ -132,7 +132,8 @@ real_data_sf <- real_data_sf[which(real_data_sf$ET != 0),]
 real_data_sf <- real_data_sf %>% st_make_valid() %>% st_cast()
 
 # Create reduced dataset for northern Italy only
-north_regions <- c("Valle d'Aosta", "Piemonte", "Liguria", "Lombardia", "Trentino-Alto Adige", "Veneto", "Friuli-Venezia Giulia", "Emilia-Romagna")
+north_regions <- c("Valle d'Aosta/Vallée d'Aoste", "Piemonte", "Liguria", "Lombardia",
+                   "Trentino-Alto Adige/Südtirol", "Veneto", "Friuli-Venezia Giulia", "Emilia-Romagna")
 north_data_sf <- real_data_sf %>% filter(NAME_REG %in% north_regions)
 
 # Create proper output directories
