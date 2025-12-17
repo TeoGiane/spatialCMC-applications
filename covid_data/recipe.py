@@ -78,7 +78,25 @@ def create_generate_plots_task(dataset: str, algo_type: str, hier_prior: str, mi
     return create_task(f"_{name(f"generate-plots-{sim_path}-{filename}")}", action=generate_plots_action,
                        task_dependencies=generate_plots_task_dependencies)
 
-# Define run_sampler task group
+# Define create_poisson_regression_run_sampler_task function
+def create_poisson_regression_run_sampler_task(dataset: str, algo_type: str, hier_prior: str, mix_prior: str) -> Task:
+    filename = "mcmc_chain" if algo_type == "MCMC" else "cmc_chain"
+    output_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
+    output_file = f"output/{output_path}/{filename}.dat"
+    run_sampler_action = ["Rscript", os.path.join(workdir,"src/run_poisson_regression_sampler.R")] + \
+        ["--input-file", f"input/covid_data_{dataset}.gpkg"] + \
+        ["--hier-prior", hier_prior] + \
+        ["--mix-prior", mix_prior] + \
+        ["--algo-params", algo_params] + \
+        ["--output-file", output_file]
+    run_sampler_task_dependencies = [name("generate_shapefiles")]
+    run_sampler_targets = [os.path.join(workdir, output_file)]
+    if algo_type == "MCMC":
+        run_sampler_action += ["--use-mcmc"]
+    return create_task(f"_{name(f"pois_reg_run-{output_path}-{filename}")}", action=run_sampler_action,
+                       task_dependencies=run_sampler_task_dependencies, targets=run_sampler_targets)
+
+# Simulation study list of parameters
 algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5000 burnin: 1000 init_num_clusters: 5'
 datasets = ["fullitaly", "northitaly"]
 algo_types = ["MCMC", "CMC"]
@@ -101,3 +119,11 @@ with create_group(name("generate_plots")):
             for hier_prior in hier_priors:
                 for mix_prior in mix_priors:
                     create_generate_plots_task(dataset,algo_type, hier_prior, mix_prior)
+
+# Define poisson_regression_run_sampler task group
+with create_group(name("pois_reg_run")):
+    for dataset in datasets:
+        for algo_type in algo_types:
+            for hier_prior in hier_priors:
+                for mix_prior in mix_priors:
+                    create_poisson_regression_run_sampler_task(dataset,algo_type, hier_prior, mix_prior)
