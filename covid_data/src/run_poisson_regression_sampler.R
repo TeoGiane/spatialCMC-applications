@@ -62,6 +62,9 @@ cat(sprintf("Data loaded from shapefile: %s\n", extra_args$input_file)) # Log
 # Standardize covariates
 cov_matrix <- cbind(scale(covid_sf$PopDens), scale(covid_sf$MeanIncome), scale(covid_sf$PercOver65))
 
+# Create shard allocation for CMC (refactor from 0)
+shard_alloc <- relabel(covid_sf$COD_REG, start = 0L)$new_values
+
 # Choose if MCMC or CMC
 run_mcmc <- extra_args$use_mcmc
 cat(sprintf("run_mcmc: %s\n", run_mcmc))
@@ -92,7 +95,6 @@ if(is.null(algo_params)){
 
 # Run SpatialCMC sampler (either MCMC or CMC)
 if(!run_mcmc) {
-  shard_alloc <- covid_sf$COD_REG - 1L
   CMC_fit <- pois_reg_cmc(as.numeric(covid_sf$T_20), offset = as.numeric(covid_sf$ET), cov_matrix = cov_matrix,
                           st_geometry(covid_sf), shard_alloc, hier_prior, mix_prior, algo_params)
 } else {
@@ -103,10 +105,10 @@ if(!run_mcmc) {
 # Save output to file
 if (exists("CMC_fit")) {
   save(CMC_fit, file = out_file)
-  cat(sprintf("CMC output saved to %s\n", out_file)) # Log
+  cat(sprintf("CMC output saved to %s\n\n", out_file)) # Log
 } else if (exists("MCMC_fit")) {
   save(MCMC_fit, file = out_file)
-  cat(sprintf("MCMC output saved to %s\n", out_file)) # Log
+  cat(sprintf("MCMC output saved to %s\n\n", out_file)) # Log
 } else {
   stop("Something went wrong: output has not been saved")
 }
