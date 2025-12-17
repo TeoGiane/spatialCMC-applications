@@ -81,7 +81,7 @@ def create_generate_plots_task(dataset: str, algo_type: str, hier_prior: str, mi
 # Define create_poisson_regression_run_sampler_task function
 def create_poisson_regression_run_sampler_task(dataset: str, algo_type: str, hier_prior: str, mix_prior: str) -> Task:
     filename = "mcmc_chain" if algo_type == "MCMC" else "cmc_chain"
-    output_path = f"{dataset}_nocovariates/{create_output_path(hier_prior, mix_prior)}"
+    output_path = f"{dataset}_covariates/{create_output_path(hier_prior, mix_prior)}"
     output_file = f"output/{output_path}/{filename}.dat"
     run_sampler_action = ["Rscript", os.path.join(workdir,"src/run_poisson_regression_sampler.R")] + \
         ["--input-file", f"input/covid_data_{dataset}.gpkg"] + \
