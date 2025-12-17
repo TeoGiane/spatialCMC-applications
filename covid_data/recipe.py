@@ -39,7 +39,10 @@ generate_shapefile_action = ['Rscript', os.path.join(workdir, 'src/generate_shap
     ['--raw-data-dir', 'raw'] + \
     ['--dest-dir', 'input']
 generate_shapefile_task_deps = [name("download_data")]
-generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_fullitaly', 'covid_data_fullitaly.shp')]
+generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_fullitaly.gpkg')] + \
+    [os.path.join(workdir, 'input', 'covid_data_northitaly.gpkg')] + \
+    [os.path.join(workdir, 'input', 'regions.gpkg')] + \
+    [os.path.join(workdir, 'input', 'provinces.gpkg')]
 create_task(name("generate_shapefiles"), action = generate_shapefile_action,
             task_dependencies = generate_shapefile_task_deps, targets = generate_shapefile_targets)
 
