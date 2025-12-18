@@ -111,6 +111,10 @@ income_df <- income_df_raw %>%
   select(Codice.Istat.Comune, Denominazione.Comune, TotFreq, TotIncome, MeanIncome)
 cat("Done!\n")
 
+# Revert Codice istat for Montecopiolo and Sassofeltrio municipalities (Referendum Mismatch, easier in this way)
+income_df$Codice.Istat.Comune[income_df$Denominazione.Comune == "MONTECOPIOLO"] <- mun_sf$PRO_COM[mun_sf$COMUNE == "Montecopiolo"]
+income_df$Codice.Istat.Comune[income_df$Denominazione.Comune == "SASSOFELTRIO"] <- mun_sf$PRO_COM[mun_sf$COMUNE == "Sassofeltrio"]
+
 # Merging data from all sources
 cat("Merging all datasets... ")
 real_data_sf <- mun_sf %>%
