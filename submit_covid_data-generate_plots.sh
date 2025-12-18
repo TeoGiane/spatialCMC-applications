@@ -23,4 +23,4 @@ in-apptainer () {
 export -f in-apptainer
 
 # Execution in containerized environment
-in-apptainer cook exec generate_plot &> log/covid_data-generate_plots.log
+in-apptainer cook exec covid_data:generate_plots &> log/covid_data-generate_plots.log
