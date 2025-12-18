@@ -55,6 +55,7 @@ cat(sprintf("Created output directory: %s\n", out_dir)) # Log
 # Main code ---------------------------------------------------------------
 
 # Required libraries
+suppressMessages(library("RProtoBuf"))
 suppressMessages(library("RspatialCMC"))
 suppressMessages(library("ggplot2"))
 suppressMessages(library("sf"))
@@ -96,7 +97,7 @@ if (exists("CMC_fit")) {
 
 # Deserialize chain
 import_protobuf_messages()
-chain <- sapply(fit, function(x){ read(bayesmix.AlgorithmState,x) })
+chain <- sapply(fit, function(x){ read(bayesmix.AlgorithmState, x) })
 
 # Get quantity of interest
 cluster_allocs <- get_cluster_allocs(chain)
