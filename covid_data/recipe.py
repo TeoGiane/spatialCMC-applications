@@ -99,7 +99,7 @@ def create_poisson_regression_run_sampler_task(dataset: str, algo_type: str, hie
                        task_dependencies=run_sampler_task_dependencies, targets=run_sampler_targets)
 
 # Simulation study list of parameters
-algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5 burnin: 1 init_num_clusters: 5'
+algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5000 burnin: 1000 init_num_clusters: 5'
 datasets = ["fullitaly", "northitaly"]
 algo_types = ["MCMC", "CMC"]
 hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
