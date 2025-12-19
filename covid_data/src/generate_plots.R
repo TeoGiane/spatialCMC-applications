@@ -119,20 +119,20 @@ ggsave(file.path(out_dir, "plt_nclust.tiff"), plot = plt_nclust,
 cat("Done!\n") # Log
 
 # Plot - Posterior similarity matrix (sorted by best cluster estimate)
-best_arrangment <- unlist(sapply(unique(covid_sf$best_clust), function(c) { which(covid_sf$best_clust == c) }))
-psm <- salso::psm(cluster_allocs[, best_arrangment])
-psm_df <- reshape2::melt(psm, c("x", "y"))
-plt_psm <- ggplot(data = psm_df) +
-  geom_tile(aes(x=x, y=y, fill=value)) +
-  scale_fill_gradient("Post. Prob. of Co-Clustering", low='white', high='darkorange',
-                      guide = guide_colorbar(title.position = "bottom", title.hjust = 0.5,
-                                             direction = "horizontal", barwidth = unit(3,"in"))) +
-  geom_rect(xmin=0.5, ymin=0.5, xmax=Ndata+0.5, ymax=Ndata+0.5, fill=NA, color='gray25', linewidth=0.7) +
-  theme_void() + theme(legend.position = "bottom") + coord_equal()
-cat("Saving plt_psm.tiff... ") # Log
-ggsave(file.path(out_dir, "plt_psm.tiff"), plot = plt_psm,
-       device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
-cat("Done!\n") # Log
+# best_arrangment <- unlist(sapply(unique(covid_sf$best_clust), function(c) { which(covid_sf$best_clust == c) }))
+# psm <- salso::psm(cluster_allocs[, best_arrangment])
+# psm_df <- reshape2::melt(psm, c("x", "y"))
+# plt_psm <- ggplot(data = psm_df) +
+#   geom_tile(aes(x=x, y=y, fill=value)) +
+#   scale_fill_gradient("Post. Prob. of Co-Clustering", low='white', high='darkorange',
+#                       guide = guide_colorbar(title.position = "bottom", title.hjust = 0.5,
+#                                              direction = "horizontal", barwidth = unit(3,"in"))) +
+#   geom_rect(xmin=0.5, ymin=0.5, xmax=Ndata+0.5, ymax=Ndata+0.5, fill=NA, color='gray25', linewidth=0.7) +
+#   theme_void() + theme(legend.position = "bottom") + coord_equal()
+# cat("Saving plt_psm.tiff... ") # Log
+# ggsave(file.path(out_dir, "plt_psm.tiff"), plot = plt_psm,
+#        device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
+# cat("Done!\n") # Log
 
 # Plot - Best cluster on the geometry
 plt_best_clust <- ggplot() +
@@ -149,7 +149,7 @@ ggsave(file.path(out_dir, "plt_best_clust.tiff"), plot = plt_best_clust,
        device = "tiff", dpi=600, compression = "lzw", height = 4, width = 4)
 cat("Done!\n") # Log
 
-cat(sprintf("All plots have been saved to: %s\n", out_dir)) # Log
+cat(sprintf("All plots have been saved to: %s\n\n", out_dir)) # Log
 
 
 # # ---- END OF SCRIPT ---- # #
