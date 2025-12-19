@@ -41,8 +41,10 @@ generate_shapefile_action = ['Rscript', os.path.join(workdir, 'src/generate_shap
 generate_shapefile_task_deps = [name("download_data")]
 generate_shapefile_targets = [os.path.join(workdir, 'input', 'covid_data_fullitaly.gpkg')] + \
     [os.path.join(workdir, 'input', 'covid_data_northitaly.gpkg')] + \
-    [os.path.join(workdir, 'input', 'regions.gpkg')] + \
-    [os.path.join(workdir, 'input', 'provinces.gpkg')]
+    [os.path.join(workdir, 'input', 'regions_fullitaly.gpkg')] + \
+    [os.path.join(workdir, 'input', 'regions_northitaly.gpkg')] + \
+    [os.path.join(workdir, 'input', 'provinces_fullitaly.gpkg')] + \
+    [os.path.join(workdir, 'input', 'provinces_northitaly.gpkg')]
 create_task(name("generate_shapefiles"), action = generate_shapefile_action,
             task_dependencies = generate_shapefile_task_deps, targets = generate_shapefile_targets)
 
@@ -71,7 +73,7 @@ def create_generate_plots_task(dataset: str, algo_type: str, hier_prior: str, mi
     sim_file = f"output/{sim_path}/{filename}.dat"
     generate_plots_action = ["Rscript", os.path.join(workdir,"src/generate_plots.R")] + \
         ["--data-file", f'input/covid_data_{dataset}.gpkg'] + \
-        ["--shard-geom-file", 'input/regions.gpkg'] + \
+        ["--shard-geom-file", f'input/regions_{dataset}.gpkg'] + \
         ["--sim-file", sim_file] + \
         ["--output-dir", f"plots/{sim_path}/{algo_type.lower()}"]
     generate_plots_task_dependencies = [f"_{name(f"run-{sim_path}-{filename}")}"]
@@ -97,7 +99,7 @@ def create_poisson_regression_run_sampler_task(dataset: str, algo_type: str, hie
                        task_dependencies=run_sampler_task_dependencies, targets=run_sampler_targets)
 
 # Simulation study list of parameters
-algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5000 burnin: 1000 init_num_clusters: 5'
+algo_params = 'algo_id: "Neal2" rng_seed: 10092022 iterations: 5 burnin: 1 init_num_clusters: 5'
 datasets = ["fullitaly", "northitaly"]
 algo_types = ["MCMC", "CMC"]
 hier_priors = ["fixed_values { shape: 250 rate: 50 }"]
