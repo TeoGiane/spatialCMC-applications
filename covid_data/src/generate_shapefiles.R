@@ -139,18 +139,29 @@ real_data_sf <- real_data_sf %>% st_make_valid() %>% st_cast()
 north_regions <- c("Valle d'Aosta/Vallée d'Aoste", "Piemonte", "Liguria", "Lombardia",
                    "Trentino-Alto Adige/Südtirol", "Veneto", "Friuli-Venezia Giulia", "Emilia-Romagna")
 north_data_sf <- real_data_sf %>% filter(NAME_REG %in% north_regions)
+north_reg_sf <- reg_sf %>% filter(COD_REG %in% unique(north_data_sf$COD_REG))
+north_prov_sf <- prov_sf %>% filter(COD_REG %in% unique(north_data_sf$COD_REG))
 
 # Create proper output directories
 dir.create(file.path(dest_dir), recursive = T, showWarnings = F)
 
-# Save shapefiles
+# Save shapefiles in GPKG format
 st_write(real_data_sf, file.path(dest_dir, "covid_data_fullitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
 cat("Processed COVID-19 dataset for all of Italy saved to", file.path(dest_dir, "covid_data_fullitaly.gpkg"), "\n") # log
+
 st_write(north_data_sf, file.path(dest_dir, "covid_data_northitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
 cat("Processed COVID-19 dataset for northern Italy saved to", file.path(dest_dir, "covid_data_northitaly.gpkg"), "\n") # log
-st_write(reg_sf, file.path(dest_dir, "regions.gpkg"), delete_layer = TRUE, quiet = TRUE)
-cat("Regions shapefile saved to", file.path(dest_dir, "regions.gpkg"), "\n") # log
-st_write(prov_sf, file.path(dest_dir, "provinces.gpkg"), delete_layer = TRUE, quiet = TRUE)
-cat("Provinces shapefile saved to", file.path(dest_dir, "provinces.gpkg"), "\n") # log
+
+st_write(reg_sf, file.path(dest_dir, "regions_fullitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
+cat("Regions shapefile for all of Italy saved to", file.path(dest_dir, "regions_fullitaly.gpkg"), "\n") # log
+
+st_write(north_reg_sf, file.path(dest_dir, "regions_northitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
+cat("Regions shapefile for northern Italy saved to", file.path(dest_dir, "regions_northitaly.gpkg"), "\n") # log
+
+st_write(prov_sf, file.path(dest_dir, "provinces_fullitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
+cat("Provinces shapefile for all of Italy saved to", file.path(dest_dir, "provinces_fullitaly.gpkg"), "\n") # log
+
+st_write(north_prov_sf, file.path(dest_dir, "provinces_northitaly.gpkg"), delete_layer = TRUE, quiet = TRUE)
+cat("Provinces shapefile for northern Italy saved to", file.path(dest_dir, "provinces_northitaly.gpkg"), "\n") # log
 
 # # ---- END OF SCRIPT ---- # #
