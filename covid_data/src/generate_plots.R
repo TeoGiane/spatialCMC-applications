@@ -115,7 +115,7 @@ plt_nclust <- ggplot(data = data.frame(prop.table(table(Nclust))), aes(x=Nclust,
 # Save
 cat("Saving plt_nclust.png... ") # Log
 ggsave(file.path(out_dir, "plt_nclust.png"), plot = plt_nclust,
-       device = "png", dpi=600, compression = "lzw", height = 4, width = 4)
+       device = "png", dpi=600, height = 4, width = 4)
 cat("Done!\n") # Log
 
 # Plot - Posterior similarity matrix (sorted by best cluster estimate)
@@ -146,7 +146,7 @@ if(run_cmc){
 }
 cat("Saving plt_best_clust.png... ") # Log
 ggsave(file.path(out_dir, "plt_best_clust.png"), plot = plt_best_clust,
-       device = "png", dpi=600, compression = "lzw", height = 4, width = 4)
+       device = "png", dpi=600, height = 4, width = 4)
 cat("Done!\n") # Log
 
 cat(sprintf("All plots have been saved to: %s\n\n", out_dir)) # Log
