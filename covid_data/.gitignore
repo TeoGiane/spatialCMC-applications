@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 *.pdf
+*.md
 
 # Folders to ignore
 input/
